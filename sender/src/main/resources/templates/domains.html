@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en"
+	  xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Fernando Alvarez's RabbitMQ Topic Test</title>
+</head>
+<body>
+
+	<div th:if="${error}" th:text="${error}"></div>
+
+	<div>
+		<form th:action="${postUrl}" method="POST">
+			<input type="text" name="name" required>
+			<button type="submit">Add domain</button>
+		</form>
+	</div>
+
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<td>Name</td>
+					<td>Action</td>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr th:each="domain : ${domains}">
+					<td th:text="${domain.name}">Domain name</td>
+					<td>
+						<form th:action="@{ {postUrl}/{domainUuid}/delete (postUrl = ${postUrl}, domainUuid = ${domain.uuid}) }" method="POST">
+							<button type="submit">Delete</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+topic: fernando.alvarez.server.cache
+
+spring:
+  rabbitmq: localhost
+  port: 5672
+  username: guest
+  password: guest
+
+server:
+  port: 0 #Random port, as the Sender is 8080
+
+sender:
+  host: http://localhost:8080
+
+application:
+  name: FernandoAlvarezTopicReceiver

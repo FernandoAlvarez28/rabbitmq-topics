@@ -1,0 +1,7 @@
+topic: fernando.alvarez.server.cache
+
+spring:
+  rabbitmq: localhost
+  port: 5672
+  username: guest
+  password: guest
