@@ -2,7 +2,9 @@ package alvarez.fernando.rabbitmq.topics.receiver.rabbit;
 
 public enum TopicKey {
 	
-	DOMAIN_CACHE("domain.cache");
+	DOMAIN_CACHE("domain.cache"),
+	ALL("#"),
+	;
 	
 	private final String value;
 	

@@ -18,20 +18,28 @@ public abstract class AbstractRabbitTopicReceiver implements MessageListener {
 	
 	protected final Queue queue;
 	
-	public AbstractRabbitTopicReceiver(RabbitProperties rabbitProperties, RabbitAdmin rabbitAdmin, TopicKey key) {
+	protected final Binding queueToTopicBinding;
+	
+	public AbstractRabbitTopicReceiver(TopicExchange topic, TopicKey key, RabbitConfig rabbitConfig) {
 		this.key = key;
-		this.queue = new Queue(this.createQueueName(rabbitProperties), false, true, true);
+		this.queue = new Queue(this.createQueueName(rabbitConfig.getApplicationName()), false, true, true);
 		
-		final TopicExchange topicExchange = new TopicExchange(rabbitProperties.getTopic());
-		
-		rabbitAdmin.declareExchange(topicExchange);
+		final RabbitAdmin rabbitAdmin = rabbitConfig.getRabbitAdmin();
+		rabbitAdmin.declareExchange(topic);
 		rabbitAdmin.declareQueue(queue);
-		rabbitAdmin.declareBinding(BindingBuilder.bind(this.queue).to(topicExchange).with(this.key.getValue()));
+		this.queueToTopicBinding = BindingBuilder.bind(this.queue).to(topic).with(this.key.getValue());
+		rabbitAdmin.declareBinding(this.queueToTopicBinding);
 		
-		final SimpleMessageListenerContainer listener = new SimpleMessageListenerContainer(rabbitAdmin.getRabbitTemplate().getConnectionFactory());
+		final SimpleMessageListenerContainer listener = new SimpleMessageListenerContainer(rabbitConfig.getConnectionFactory());
 		listener.addQueues(this.queue);
 		listener.setMessageListener(this);
 		listener.start();
+		
+		/*Registering them as Bean will allow Spring (or RabbitMQ, idk) to redeclare them when connection is reestablished.
+		  But creating getters annotated with @Bean will create problems when using multiple Receivers, like only one of them successfully redeclaring.
+		 */
+		rabbitConfig.registerQueueAsBean(this.queue);
+		rabbitConfig.registerBindingAsBean(this.queueToTopicBinding);
 	}
 	
 	@Override
@@ -42,12 +50,12 @@ public abstract class AbstractRabbitTopicReceiver implements MessageListener {
 	
 	protected abstract void receive(Message message);
 	
-	private String createQueueName(RabbitProperties rabbitProperties) {
+	private String createQueueName(String applicationName) { //You can use whatever logic you would want to here
 		try {
-			return InetAddress.getLocalHost().getHostName() + "-" + rabbitProperties.getApplicationName() + "-" + UUID.randomUUID();
+			return InetAddress.getLocalHost().getHostName() + "-" + applicationName + "-" + UUID.randomUUID();
 		} catch (UnknownHostException e) {
 			this.logger.warn("Error creating queue name", e);
-			return rabbitProperties.getApplicationName() + "-" + UUID.randomUUID();
+			return applicationName + "-" + UUID.randomUUID();
 		}
 	}
 	

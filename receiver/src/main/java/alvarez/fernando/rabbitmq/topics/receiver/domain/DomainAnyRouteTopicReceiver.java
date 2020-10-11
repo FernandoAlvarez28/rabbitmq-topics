@@ -6,19 +6,19 @@ import alvarez.fernando.rabbitmq.topics.receiver.rabbit.TopicKey;
 import org.springframework.amqp.core.Message;
 import org.springframework.stereotype.Component;
 
+/**
+ * Class with the only purpuse to exemplify and test multiple TopicReceivers, together with {@link DomainCacheTopicReceiver}.
+ */
 @Component
-public class DomainCacheTopicReceiver extends AbstractRabbitTopicReceiver {
+public class DomainAnyRouteTopicReceiver extends AbstractRabbitTopicReceiver {
 	
-	private final DomainCache domainCache;
-	
-	public DomainCacheTopicReceiver(DomainCacheTopic topic, RabbitConfig rabbitConfig, DomainCache domainCache) {
-		super(topic, TopicKey.DOMAIN_CACHE, rabbitConfig);
-		this.domainCache = domainCache;
+	public DomainAnyRouteTopicReceiver(DomainCacheTopic topic, RabbitConfig rabbitConfig) {
+		super(topic, TopicKey.ALL, rabbitConfig);
 	}
 	
 	@Override
 	protected void receive(Message message) {
-		this.domainCache.updateCache();
+		//not implemented on purpose
 	}
 	
 }

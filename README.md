@@ -26,6 +26,8 @@ Each `RabbitMQTopicsReceiverApplication` you start will create one Queue and bin
 Each Receiver will receive the same message (Domain update notification) from the Topic, and will make a request to Sender API ([localhost:8080/api/domains](http://localhost:8080/api/domains))
 to fetch all Domains and cache them.
 
+The Topic, Queues and Bindings are registered as Beans. So if the connection with the broker is lost, they are automatically recreated by Spring/RabbitMQ on reconnection.
+
 ## How to run
 1. Clone this repository and open it on your favorite IDE (IntelliJ or Eclipse);
 1. Run Maven to import all dependencies;
@@ -42,3 +44,4 @@ The Receiver creates and deletes the queues automatically.
 * Rabbit and Carrot ASCII Art got from [asciiart.eu](https://www.asciiart.eu/food-and-drinks/other);
 * Wonderful tutorial on official RabbitMQ site: https://www.rabbitmq.com/tutorials/tutorial-five-spring-amqp.html;
 * Nice Stack Overflow question about how to create a listener at runtime without using `@RabbitListener`: https://stackoverflow.com/questions/47331469/easiest-way-to-construct-rabbitlistener-at-runtime/47332278;
+* Solution about anonymous queues on reconnection: https://jira.spring.io/browse/AMQP-758?focusedCommentId=153261&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-153261

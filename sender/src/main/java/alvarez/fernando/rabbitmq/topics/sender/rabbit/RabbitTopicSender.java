@@ -8,6 +8,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,12 @@ public class RabbitTopicSender {
 		this.topicExchange = new TopicExchange(topic);
 		rabbitAdmin.declareExchange(this.topicExchange);
 		this.objectMapper = new ObjectMapper();
+	}
+	
+	//Registering it as Bean will allow Spring (or RabbitMQ, idk) to redeclare it when connection is reestablished.
+	@Bean
+	private TopicExchange getTopicExchange() {
+		return topicExchange;
 	}
 	
 	public void send(TopicKey key, @Nullable Object message) throws RabbitTopicSendException {
