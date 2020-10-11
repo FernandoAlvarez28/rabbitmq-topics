@@ -30,13 +30,13 @@ to fetch all Domains and cache them.
 1. Clone this repository and open it on your favorite IDE (IntelliJ or Eclipse);
 1. Run Maven to import all dependencies;
 1. Make sure you are running [RabbitMQ](https://www.rabbitmq.com) on your machine. The applications will attempt to connect to the default port (`5672`), user (`guest`) and password (`guest`), but you can change them in `application.yml` of both applications;
-1. Create the Exchange `fernando.alvarez.server.cache` with the default settings;
 1. Start one `RabbitMQTopicsSenderApplication` and one or many `RabbitMQTopicsReceiverApplication`;
 1. Access [localhost:8080](http://localhost:8080) and create a Domain;
 1. Check the Receivers's Console if they receive the message and update their cache.
 
-The tutorial I followed automatically creates the Topic/Exchange and Queues, but I couldn't create the Topic/Exchange automatically here. For my goal this won't be a problem, but would be nice.
-At least, the Receiver creates and deletes the queues automatically.
+Both Sender and Receivers creates the Topic (Exchange) `fernando.alvarez.server.cache` if it doesn't exist.
+
+The Receiver creates and deletes the queues automatically.
 
 ## Other
 * Rabbit and Carrot ASCII Art got from [asciiart.eu](https://www.asciiart.eu/food-and-drinks/other);

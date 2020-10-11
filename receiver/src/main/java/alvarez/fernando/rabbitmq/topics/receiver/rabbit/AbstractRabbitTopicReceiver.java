@@ -24,6 +24,7 @@ public abstract class AbstractRabbitTopicReceiver implements MessageListener {
 		
 		final TopicExchange topicExchange = new TopicExchange(rabbitProperties.getTopic());
 		
+		rabbitAdmin.declareExchange(topicExchange);
 		rabbitAdmin.declareQueue(queue);
 		rabbitAdmin.declareBinding(BindingBuilder.bind(this.queue).to(topicExchange).with(this.key.getValue()));
 		
