@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
-public abstract class AbstractRabbitTopicReceiver implements MessageListener {
+public abstract class AbstractRabbitTopicReceiver implements MessageListener, ApplicationListener<ApplicationReadyEvent> {
 	
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -19,6 +21,8 @@ public abstract class AbstractRabbitTopicReceiver implements MessageListener {
 	protected final Queue queue;
 	
 	protected final Binding queueToTopicBinding;
+	
+	private final SimpleMessageListenerContainer listener;
 	
 	public AbstractRabbitTopicReceiver(TopicExchange topic, TopicKey key, RabbitConfig rabbitConfig) {
 		this.key = key;
@@ -30,16 +34,21 @@ public abstract class AbstractRabbitTopicReceiver implements MessageListener {
 		this.queueToTopicBinding = BindingBuilder.bind(this.queue).to(topic).with(this.key.getValue());
 		rabbitAdmin.declareBinding(this.queueToTopicBinding);
 		
-		final SimpleMessageListenerContainer listener = new SimpleMessageListenerContainer(rabbitConfig.getConnectionFactory());
+		this.listener = new SimpleMessageListenerContainer(rabbitConfig.getConnectionFactory());
 		listener.addQueues(this.queue);
 		listener.setMessageListener(this);
-		listener.start();
 		
 		/*Registering them as Bean will allow Spring (or RabbitMQ, idk) to redeclare them when connection is reestablished.
 		  But creating getters annotated with @Bean will create problems when using multiple Receivers, like only one of them successfully redeclaring.
 		 */
 		rabbitConfig.registerQueueAsBean(this.queue);
 		rabbitConfig.registerBindingAsBean(this.queueToTopicBinding);
+	}
+	
+	@Override
+	public void onApplicationEvent(ApplicationReadyEvent event) {
+		this.listener.start(); //From this point on, this class will start receiving messages
+		this.logger.info("Listening to \"{}\"", this.queue.getName());
 	}
 	
 	@Override
